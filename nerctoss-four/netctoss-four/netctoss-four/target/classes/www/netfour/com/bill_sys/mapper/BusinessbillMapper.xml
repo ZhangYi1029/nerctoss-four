@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="www.netfour.com.bill_sys.mapper.BusinessbillMapper">
+					<!-- 业务账号月费用情况 -->
+		<resultMap type="BusinessbillBean" id="businessbillMap">
+			<id property="businessbillId" column="businessbill_id" javaType="java.lang.Long"/>
+			<!-- 时长 -->
+			<result property="duration" column="businessbill_duration" javaType="int"/>
+			<!-- 费用 -->
+			<result property="expense" column="businessbill_expense" javaType="java.lang.Double"/>
+			
+			<!-- 业务账号 -->
+			<result property="businessBean.number" column="business_number" javaType="java.lang.String" />
+			<!-- 账务账号ID -->
+			<result property="totalbillBean.accountBean.number" column="account_number" javaType="java.lang.String" />
+			<!-- 资费名称 -->
+			<result property="businessBean.expense.name" column="expense_name" javaType="java.lang.String" />
+			<!-- 实验室IP -->
+			<result property="businessBean.serviceIp" column="business_serviceIp" javaType="java.lang.String" />
+		</resultMap>
+		
+		
+
+		<!-- 1.根据ID分页显示：业务账号-月消费表-条数 -->
+		<select id="count" resultType="int">
+			SELECT count(*)
+		from businessbill as x 
+		LEFT JOIN totalbill as t ON x.fk_totalbill_id = t.totalbill_id 
+		LEFT JOIN business as b on b.business_id = x.fk_business_id
+		LEFT join account a on b.fk_accort_id=a.account_id 
+		<include refid="Sql"></include>
+		</select>
+	
+		
+		<select id="getBusinessbillById" resultMap="businessbillMap">
+			SELECT *
+		from businessbill as x 
+		LEFT JOIN totalbill as t ON x.fk_totalbill_id = t.totalbill_id 
+		LEFT JOIN business as b on b.business_id = x.fk_business_id
+		LEFT join account a on b.fk_accort_id=a.account_id 
+		<include refid="Sql"></include>
+		limit #{map.index},#{map.pageSize}
+		</select>
+		
+		<sql id="Sql">
+ 		<trim prefix="where" prefixOverrides="and|or">
+ 			<if test="1==1">
+ 				1 = 1
+ 			</if>
+ 			<if test="map.cdnumber != null">
+ 				and account_number = #{map.cdnumber}
+ 			</if>
+ 		</trim>
+ 	</sql>
+		
+	
+		
+	
+</mapper>

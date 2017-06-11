@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="www.netfour.com.accountquery_sys.mapper.YearaccountMapper">
+	<resultMap type="YearaccountBean" id="yearMap">
+		<id property="id" column="yearacount_id" javaType="java.lang.Long"/>
+		<result property="year" column="year" javaType="java.lang.Long"/>
+		<result property="yearDuration" column="year_duration" javaType="java.lang.Long"/>
+		<result property="businessBean.number" column="business_number" javaType="java.lang.String"/>
+		<result property="accountBean.number" column="account_number" javaType="java.lang.String"/>
+		<result property="accountBean.name" column="account_name" javaType="java.lang.String"/>
+		<result property="businessBean.serviceIp" column="business_serviceIp" javaType="java.lang.String"/>
+	</resultMap>
+	
+ 	<select id="getYearaccountAll" resultMap="yearMap">
+ 		SELECT y.yearacount_id ,y.`year`  ,y.year_duration ,a.account_name  ,
+		a.account_number  , b.business_number  , b.business_serviceIp 	
+		from yearacount as y 
+		LEFT JOIN  account as a  ON y.fk_account_id = a.account_id 
+		LEFT JOIN business as b on b.business_id = y.fk_business_id
+		
+		limit #{map.index},#{map.pageSize}
+ 	</select>
+ 	
+ 	<select id="getYearaccountIsYearAll" resultMap="yearMap">
+ 		
+ 		select distinct y.`year` from yearacount as y ORDER BY year ASC
+ 		     
+ 	</select>
+ 
+ 	<select id="count" resultType="int">
+ 		SELECT COUNT(*)
+		from yearacount as y 
+		LEFT JOIN  account as a  ON  a.account_id = y.fk_account_id
+		LEFT JOIN business as b on b.business_id = y.fk_business_id 
+		<include refid="Sql"></include>
+		
+ 	</select>
+ 	
+ 	<insert id="addYearaccount" parameterType="java.util.List">
+ 		INSERT INTO yearacount (year,year_duration , fk_account_id , fk_business_id )
+		values 
+		<foreach collection="years" item="list" separator=",">
+			(#{list.year},#{list.yearDuration},#{list.businessBean.account.id},#{list.businessBean.id})
+		</foreach>
+ 	</insert>
+ 	
+ 	
+ 	<select id="getYearaccounAlltById" resultMap="yearMap">
+ 		SELECT y.yearacount_id ,y.`year` ,y.year_duration ,a.account_name  ,
+		a.account_number  , b.business_number  , b.business_serviceIp 
+		from yearacount as y 
+		LEFT JOIN  account as a  ON  a.account_id = y.fk_account_id
+		LEFT JOIN business as b on b.business_id = y.fk_business_id 
+ 		<include refid="Sql"></include>
+ 		limit #{map.index},#{map.pageSize}
+ 	</select>
+ 	
+ 	<sql id="Sql">
+ 		<trim prefix="where" prefixOverrides="and|or">
+ 			<if test="true">
+ 				1=1
+ 			</if>
+ 			<if test="map.year != null">
+ 				and y.year like CONCAT(#{map.year},'%')
+ 			</if>
+ 			<if test="map.accountNumber != null">
+ 				AND a.account_number  like CONCAT(#{map.accountNumber},'%')
+ 			</if>
+ 		</trim>
+ 	</sql>
+ 
+</mapper>

@@ -1,0 +1,568 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="jquery,ui,easy,easyui,web">
+<meta name="description" content="easyui">
+<title>前台自服务系统</title>
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_animation.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_plus.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/insdep_theme_default.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/icon.css">
+	
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/libs/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/jquery.insdep-extend.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.json-2.4.js"></script>
+
+
+<style>
+body {
+	margin: 0px
+}
+</style>
+
+<script>
+	/* 查询数据的方法 */
+
+
+	/* 清空查询框的方法 */
+	function ClearQuery() {
+		
+	}
+
+
+	$(function() {
+
+		var month =null;
+		var id =null;
+		$('#tt').datagrid({
+			title : '用户自服务界面',
+			width : 700,
+			height : 'auto',
+			nowrap : false,
+			striped : true,
+			border : true,
+			collapsible : false,//是否可折叠的 
+			fit : true,//自动大小 
+			method:"GET",
+			url : '../selfservice/getBill',
+			//sortOrder: 'desc', //该方法用来设置排列的顺序
+			remoteSort : false,
+			idField : 'id',//数据的id属性是什么
+			singleSelect : false,//是否单选 
+			//pagination : true,//分页控件是否显示
+			rownumbers : true,//行号 是否显示
+			toolbar : "#tb",
+			columns:[[
+				/* {title:'选择', width:80,
+				checkbox:true
+				}, */
+				{field:'name',title:'账务账号', width:120,
+					formatter: function(value,row,index){
+						console.info(row);
+						if(row.accountBean!=null){
+							
+							return row.accountBean.name ;
+						}
+						else {
+							return '';
+						}
+					}
+				},
+				{field:'expense',title:'资费', width:80
+				},
+				{field:'month',title:'账单时间', width:80
+				},
+				{field:'paymethod',title:'支付方式', width:80
+				},
+				{field:'paystate',title:'支付状态', width:80,
+					formatter: function(value,row,index){
+						
+						console.info(row +":paystate");
+						
+						if(row.paystate!=null){
+							
+							month=row.month;
+							if(row.paystate=='1'){
+								return '已支付';
+							}
+							else if(row.paystate=='0'){
+								
+								return '未支付';
+							}
+							
+						}
+						else{
+							
+							return '';
+						}						
+						
+					}
+					
+				}
+				
+			]],
+			onDblClickRow:function(rowIndex, rowData){
+				
+				console.info(rowData.totalbillId+"id");
+				checkBusinessBill(rowData.totalbillId);
+				/* $('#add').dialog('open'); */
+			}
+
+		});
+		
+		
+		$('#ttTwo').datagrid({
+			title : '业务账单',
+			width : 700,
+			height : 'auto',
+			nowrap : false,
+			striped : true,
+			border : true,
+			collapsible : false,//是否可折叠的 
+			fit : true,//自动大小 
+			//sortOrder: 'desc', //该方法用来设置排列的顺序
+			remoteSort : false,
+			idField : 'i',//数据的id属性是什么
+			singleSelect : false,//是否单选 
+			//pagination : true,//分页控件是否显示
+			rownumbers : true,//行号 是否显示
+			columns:[[
+				{field:'number',title:'业务账号', width:80,
+					formatter: function(value,row,index){
+						
+					console.info(row);
+					if(row.businessBean!=null){
+						
+						return row.businessBean.number ;
+					}
+					else {
+						return '';
+					}
+				}
+				
+				},
+				{field:'duration',title:'使用时间', width:80
+				},
+				{field:'expense',title:'使用费用', width:80
+				},
+				
+				
+			]],
+			
+		onDblClickRow:function(index,rowData){
+				
+				
+				id=rowData.businessBean.id;
+				serverIn(month,id);
+				
+			}
+			
+		});
+		
+
+		$('#ttThree').datagrid({
+			title : '服务器使用情况',
+			width : 700,
+			height : 'auto',
+			nowrap : false,
+			striped : true,
+			border : true,
+			collapsible : false,//是否可折叠的 
+			fit : true,//自动大小 
+			//sortOrder: 'desc', //该方法用来设置排列的顺序
+			remoteSort : false,
+			idField : 'i',//数据的id属性是什么
+			singleSelect : false,//是否单选 
+			///pagination : true,//分页控件是否显示
+			rownumbers : true,//行号 是否显示
+			columns:[[
+				{field:'serviceIp',title:'服务器IP', width:120,resizable:true
+				},
+				{field:'loginTimeStr',title:'登录时间', width:120
+				},
+				{field:'exitTimeStr',title:'登出时间', width:120
+				},
+				{field:'servcieExpense',title:'使用费用', width:80
+				}
+			]]
+			
+			
+		});
+
+		var dateYear =[];
+		var d =new Date();
+		
+		var year =d.getFullYear()+"";
+		var dateMonth=[];
+		var monthTwo=(d.getMonth()+1)+"";
+		console.info(monthTwo);
+		for(var i = 1920; i<2999 ; i++){
+			
+			if(i==year){
+				console.info(monthTwo);
+				dateYear.push({'text':i,selected:true,'value':i});
+				continue;
+			}	
+			dateYear.push({'text':i,'value':i});
+		}
+	
+	
+		for(var i = 1; i<=12 ; i++){
+			
+			
+			if(i==monthTwo){
+				console.info(year);
+				dateMonth.push({'text':i,selected:true,'value':i});
+				continue;
+			}	
+			dateMonth.push({'text':i,'value':i});
+		}
+	
+		
+		$('#year').combobox({    
+		    valueField:'value',    
+		    textField:'text',  
+		});  
+		
+		$('#month').combobox({    
+		    valueField:'value',    
+		    textField:'text',  
+		});  
+		
+		
+		$('#year').combobox("loadData",dateYear);  
+		
+		$('#month').combobox("loadData",dateMonth);  
+		var p = $('#tt').datagrid('getPager');
+		$(p).pagination({
+			pageSize : 10,//每页显示的记录条数，默认为10 
+			pageList : [ 5, 10, 15 ],//可以设置每页记录条数的列表 
+			beforePageText : '第',//页数文本框前显示的汉字 
+			afterPageText : '页    共 {pages} 页',
+			displayMsg : '当前显示 {from} - {to} 条记录   共 {total} 条记录',
+			showRefresh:false
+		}); 
+		
+		
+		$('#shuzi').textbox({    
+			prompt:'只能输入数字',
+			required:true,
+			missingMessage:"请输入数字"
+		});
+		
+		$('#riqi').textbox({    
+			prompt:'只能选择日期',
+			required:true,
+			missingMessage:"请选择日期"
+		});
+		
+		$('#wenben').textbox({    
+			prompt:'只能输入文本',
+			required:true,
+			missingMessage:"请输入文本"
+		});
+		
+
+	});
+	/* $('#add').dialog('open'); */
+	
+		function QueryData() {
+		
+		var yearVal= $('#year').combobox('getValue');
+		console.info(yearVal);
+		var monthVal= $('#month').combobox('getValue');
+		console.info(monthVal);
+		var num =parseInt(monthVal);
+		console.info(num);
+		var numStr =null;
+		if(num<10){
+			
+			 numStr ="0"+num;
+		}
+		else {
+			 numStr= num +"";
+			
+		}
+		
+		var yearMonth=yearVal+'-'+numStr;
+	
+		
+		$("#tt").datagrid("load", {
+	        "month":yearMonth
+	    });
+	   
+		$("#tt").datagrid("reload"); 
+		
+		var dataY= $("#tt").datagrid("getData");
+		
+	/* 	$('#ttTwo').datagrid("loadData",{total:'1',rows:dataY.rows});  */
+	
+		console.info(dataY);
+	};
+	
+	
+	/* $.fn.datebox.defaults.formatter = function(date){
+		var y = date.getFullYear();
+		var m = date.getMonth()+1;
+		var d = date.getDate();
+		return m+'/'+d+'/'+y;
+	}
+ */
+/*  $('#dd').datebox('calendar').calendar({
+		firstDay: 1,
+		formatter : function(date){
+			console.info(date);
+			var y = date.getFullYear();
+			var m = date.getMonth()+1;
+			var d = date.getDate();
+			return m+'/'+d+'/'+y;
+		}
+
+ }); */
+ 
+
+	function checkBusinessBill(id){
+	 
+	 $.ajax({
+		 
+		 type:'GET',
+		 url:'../selfservice/'+id,
+		 async:true,
+		success:function(data){
+				console.info($.toJSON(data));
+				/* tableShow($.toJSON(data)); */
+				
+				var dataTwo =$.toJSON(data);
+				console.info(dataTwo+"data");
+				
+				//$('#ttTwo').datagrid("loadData",{"total":'2',rows:[{"businessbillId":dataTwo.businessbillId,"duration":dataTwo.duration,"expense":168.5,"totalbillBean":null,"businessBean":null}]});
+				 
+		 		$('#ttTwo').datagrid("loadData",{total:'1',rows:data}); 
+				$('#ttTwo').datagrid("reload");
+				$('#businessBill').dialog('open');
+				
+				console.info(da);
+				/* var da=$('#tt').datagrid("options").data;
+				console.info(da);
+				 var da=$('#ttTwo').datagrid(
+				{
+					'data':dataTwo
+				}		
+				); 
+				$('#ttTwo').datagrid("reload");
+				$('#add').dialog('open'); */
+			}
+	 })
+	 
+ }
+ 
+ 	
+
+	function serverIn(month,id){
+		 
+		 $.ajax({
+			 type:'GET',
+			 url:'../selfservice/getServerInfo/'+month+'/'+id,
+			 async:true,
+			success:function(data){
+					console.info($.toJSON(data));
+					$('#ttThree').datagrid("loadData",{total:'1',rows:data}); 
+					$('#ttThree').datagrid("reload");
+					$('#serverInfo').dialog('open');
+				}
+		 })
+		 
+	 }
+	 
+ 
+
+ 	
+</script>
+</head>
+<body>
+
+	<!-- <div id="tb" style="padding: 5px; height: auto">
+		<div style="margin-bottom: 5px">
+			<a href="#" class="easyui-linkbutton button-success"
+				onclick="addlog()" plain="true">添加</a> <a href="#"
+				class="easyui-linkbutton button-danger" plain="true">删除</a> <a
+				href="#" class="easyui-linkbutton button-warning" plain="true">修改</a>
+			<a href="#" class="easyui-linkbutton button-primary" plain="true">刷新</a>
+		</div>
+
+	</div> -->
+
+
+
+
+	<div>
+		<div id="ttd" fit="true" border="false">
+			<div id="divLayout" fit="true">
+				<div data-options="region:'north',split:false"
+					style="padding-top: 6px;" border="false">
+
+					<!--信息查询部分-->
+					<fieldset id="tblQuery">
+						<legend>信息查询</legend>
+
+						<label>查询日期:</label>
+						<!-- <input id="dd" type="text"
+							class="easyui-datebox"></input> -->
+						<input id="year" name="dept" value=""><label>年</label> <input
+							id="month" name="dept" value=""><label>月</label> <a
+							class="easyui-linkbutton button-info" onclick="QueryData()"
+							plain="true">查询</a>
+						<!-- 执行查找方法 -->
+						<a class="easyui-linkbutton button-inverse" onclick="ClearQuery()"
+							plain="true">清空</a>
+						<!-- 执行清空查询数据的方法 -->
+					</fieldset>
+
+				</div>
+
+				<div data-options="region:'center',split:false" border="false">
+
+					<div style="height: 500px">
+						<!--显示数据列表部分-->
+						<table id="tt" cellspacing="0" cellpadding="0">
+							<thead>
+								<!-- <tr>
+									<th field="ck" checkbox="true"></th>
+									<th field="expense" align="left">资费</th>
+								</tr> -->
+							</thead>
+						</table>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 增加数据对话框 -->
+	<div id="businessBill" class="easyui-dialog"
+		style="padding: 5px; width: 600px; height: 400px" title="业务账单"
+		data-options="closed:true" buttons="#dlg-buttonsOne">
+
+
+		<table id="ttTwo" cellspacing="0" cellpadding="0">
+			<thead>
+				<!--  <tr>
+									<th field="ck" checkbox="true"></th>
+									<th field="businessbillId" align="left">业务账单ID</th>
+								</tr>  -->
+			</thead>
+		</table>
+
+
+
+
+
+
+
+		<!-- <div style="margin-left: 20px">
+			<input id="shuzi" name="shuzi" class="easyui-numberbox"
+				editable="true"
+				data-options="buttonText:'数字输入框',buttonAlign:'left',prompt:'请输入'"
+				style="width: 95%; height: 32px;">
+		</div>
+
+
+		<div style="margin-left: 20px">
+
+			<select name="xiala" class="easyui-combobox"
+				data-options="buttonText:'下拉输入框',buttonAlign:'left',prompt:'请输入'"
+				style="width: 95%; height: 32px;">
+				<option>a</option>
+				<option>b</option>
+				<option>b</option>
+				<option>d</option>
+				<option>e</option>
+			</select>
+
+		</div>
+
+
+		<div style="margin-left: 20px">
+			<input id="riqi" name="riqi" class="easyui-datebox" editable="false"
+				data-options="buttonText:'日期输入框',buttonAlign:'left',prompt:'请输入'"
+				style="width: 95%; height: 32px;">
+		</div>
+
+
+
+		<div style="margin-left: 20px">
+			<input id="wenben" name="wenben" class="easyui-textbox"
+				data-options="buttonText:'文本输入框',buttonAlign:'left',prompt:'请输入'"
+				style="width: 95%; height: 32px;">
+		</div> -->
+
+		<div id="dlg-buttonsOne">
+			<a class="easyui-linkbutton" iconCls="icon-cancel"
+				onclick="javascript:$('#businessBill').dialog('close')">取消</a>
+		</div>
+	</div>
+
+
+
+	<!-- 增加数据对话框 -->
+	<div id="serverInfo" class="easyui-dialog"
+		style="padding: 5px; width: 600px; height: 400px" title="服务器使用情况"
+		data-options="closed:true" buttons="#dlg-buttons">
+
+
+		<table id="ttThree" cellspacing="0" cellpadding="0">
+			<thead>
+				<!--  <tr>
+									<th field="ck" checkbox="true"></th>
+									<th field="businessbillId" align="left">业务账单ID</th>
+								</tr>  -->
+			</thead>
+		</table>
+
+		<div id="dlg-buttons">
+			<a class="easyui-linkbutton" iconCls="icon-cancel"
+				onclick="javascript:$('#serverInfo').dialog('close')">取消</a>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		
+		
+		
+		$('#dd').datebox({
+			required:false,
+			editable:false
+			/* formatter : function(date){
+				 console.info(date+"date");
+				 var y = date.getFullYear();
+					var m = date.getMonth()+1;
+					var d = date.getDate();
+					return m+'/'+d+'/'+y;
+
+				}, */
+			    /* onSelect: function(date){
+			       console.info(date);
+			    } */
+			});
+
+		
+		
+		
+		
+		</script>
+
+</body>
+</html>

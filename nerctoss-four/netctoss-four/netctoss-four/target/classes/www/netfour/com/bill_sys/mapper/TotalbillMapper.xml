@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="www.netfour.com.bill_sys.mapper.TotalbillMapper">
+
+	<resultMap type="TotalbillBean" id="totalbillMap">
+		<id property="totalbillId" column="totalbill_id" javaType="java.lang.Long"/>
+		<result property="expense" column="totalbill_expense" javaType="java.lang.Double"/>
+		<result property="month" column="totalbill_month" javaType="java.lang.String"/>
+		<result property="paymethod" column="totalbill_paymethod" javaType="java.lang.String"/>
+		<result property="paystate" column="totalbill_paystate" javaType="java.lang.Integer"/>
+		
+		<result property="accountBean.id" column="account_id" javaType="java.lang.Long" />
+		<result property="accountBean.name" column="account_name" javaType="java.lang.String" />
+		<result property="accountBean.number" column="account_number" javaType="java.lang.String" />
+		<result property="accountBean.idCard" column="account_idcard" javaType="java.lang.String" />
+	</resultMap>	
+		
+	<!-- 一：显示：分页查询资费 -->
+	<select id="showAll" resultMap="totalbillMap">
+				<!-- 第几条开始显示几条 -->
+		select * from totalbill as t 
+		join account a on t.fk_account_id=a.account_id  
+		limit #{map.index},#{map.pageSize}
+	</select>	
+
+	<!-- 一：显示查询条数 -->
+	<select id="count" resultType="int">
+		select count(*) 
+		from totalbill as t
+		join account a on t.fk_account_id=a.account_id 
+		<include refid="Sql"></include>
+	</select>
+		
+		
+		
+	<!-- 二：查询：账务费用-账务信息 -->
+	<select id="getByManyFees" resultMap="totalbillMap">	
+		select * from totalbill as t 
+		join account a on t.fk_account_id=a.account_id 
+		<include refid="Sql"></include>
+		 limit #{map.index},#{map.pageSize}
+	</select>	
+	
+	<!-- 二：查询：账务费用 -->
+	<sql id="Sql">
+ 		<trim prefix="where" prefixOverrides="and|or">
+ 			<if test="true">
+ 				1=1
+ 			</if>
+ 			<if test="map.accountBeanname != null">
+ 				and a.account_name like CONCAT(#{map.accountBeanname},'%')
+ 			</if>
+ 			<if test="map.accountBeannumber != null">
+ 				AND a.account_number like CONCAT(#{map.accountBeannumber},'%')
+ 			</if>
+ 			<if test="map.accountBeanidCard != null">
+ 				AND a.account_idcard like CONCAT(#{map.accountBeanidCard},'%')
+ 			</if>
+ 			<if test="map.montht != null">
+ 				AND t.totalbill_month like CONCAT(#{map.montht},'%')
+ 			</if>
+ 		</trim>
+ 	</sql>
+	
+	
+	
+	<!-- 三:查询：业务费用 -->
+	<select id="getById" resultMap="totalbillMap">
+		select*from businessbill 
+			<where>
+			fk_totalbill_id = #{totalbillBean.totalbillId}
+			</where>
+	</select>
+	
+	
+	
+	
+	<!-- 四：支付 -->
+	<update id="updatebill">
+		update totalbill 
+		<set>
+		totalbill_paystate = #{totalbillBean.paystate}
+		</set> 
+		<where>
+		totalbill_id = #{totalbillBean.totalbillId}
+		</where>
+	</update>
+	
+	
+</mapper>	

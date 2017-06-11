@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="www.netfour.com.accountquery_sys.mapper.MonthaccountMapper">
+	<resultMap type="MonthaccountBean" id="monthMap">
+		<result property="id" column="monthaccount_id" javaType="java.lang.Long"/>
+		<result property="month" column="month" javaType="java.lang.Long"/>
+		<result property="monthDuration" column="month_duration" javaType="java.lang.Long"/>
+		
+		
+		<result property="yearaccountBean.year" column="year" javaType="java.lang.Long"/>
+		<result property="yearaccountBean.id" column="yearacount_id" javaType="java.lang.Long"/>
+		<result property="yearaccountBean.businessBean.number" column="business_number" javaType="java.lang.String"/>
+		<result property="yearaccountBean.accountBean.number" column="account_number" javaType="java.lang.String"/>
+		<result property="yearaccountBean.accountBean.name" column="account_name" javaType="java.lang.String"/>
+		<result property="yearaccountBean.businessBean.serviceIp" column="business_serviceIp" javaType="java.lang.String"/>
+	</resultMap>
+	
+	<select id="getMonthaccountYearAll" resultMap="monthMap">
+		select distinct m.month from yearacount as y  left join monthaccount as m 
+		on m.fk_yearaccount_id = y.yearacount_id
+		WHERE y.`year` = #{tzyear}
+		ORDER BY m.month ASC
+	</select>
+ 	
+ 	<select id="count" resultType="int">
+ 		SELECT count(m.monthaccount_id)
+		from yearacount as y 
+		LEFT JOIN monthaccount as m on m.fk_yearaccount_id = y.yearacount_id
+		LEFT JOIN  account as a  ON y.fk_account_id = a.account_id 
+		LEFT JOIN business as b on b.business_id = y.fk_business_id
+		<include refid="Sql"></include>
+ 	</select>
+ 		
+ 	<select id="getMonthaccounAlltByIdAndYear" resultMap="monthMap">
+ 		SELECT y.yearacount_id ,y.`year` , m.`month` ,m.month_duration ,a.account_name  ,
+		a.account_number  , b.business_number  , b.business_serviceIp 	
+		from yearacount as y 
+		LEFT JOIN monthaccount as m on m.fk_yearaccount_id = y.yearacount_id
+		LEFT JOIN  account as a  ON y.fk_account_id = a.account_id 
+		LEFT JOIN business as b on b.business_id = y.fk_business_id
+		<include refid="Sql"></include>
+		limit #{map.index},#{map.pageSize}
+ 	</select>
+ 
+ 	<sql id="Sql">
+ 		<trim prefix="where" prefixOverrides="and|or">
+ 			<if test="1==1">
+ 				1 = 1
+ 			</if>
+ 			<if test="map.year != null">
+ 				and y.year like CONCAT(#{map.year},'%')
+ 			</if>
+ 			<if test="map.month == 1 ">
+ 				and m.month = #{map.month}
+ 			</if>
+ 			<if test="map.month != null  and map.month != 1	">
+				AND m.month like CONCAT(#{map.month},'%')
+ 			</if>
+ 			<if test="map.accountNumber != null">
+ 				AND a.account_number  like CONCAT(#{map.accountNumber},'%')
+ 			</if>
+ 		</trim>
+ 	</sql>
+ 
+ 	<update id="addYearaccount" parameterType="java.util.List">
+ 	
+ 		UPDATE yearacount
+
+    	SET year_duration = CASE yearacount_id
+
+		<foreach collection="lists" item="list" separator="  ">
+			WHEN #{list.year} THEN #{list.sum}
+		</foreach>
+
+    	END
+
+		WHERE yearacount_id IN (
+		<foreach collection="lists" item="list" separator=",">
+			#{list.year}
+		</foreach>
+		)
+ 	</update>
+ 	
+ 	<select id="saveYearID"  resultMap="monthMap">
+ 	 	SELECT yearacount_id from yearacount WHERE year = (SELECT MAX(year) from yearacount)
+ 	</select>
+ 	
+ 	
+ 	<insert id="addMonth" parameterType="java.util.List">
+ 		INSERT INTO monthaccount (month,fk_yearaccount_id) VALUES
+		<foreach collection="listMonths" item="listMontoh" separator=",">
+			(#{listMontoh.month},#{listMontoh.yearaccountBean.id})
+		</foreach>
+ 	</insert>
+ 
+ 	<update id="updateMonthaccount" parameterType="java.util.List">
+ 	
+ 		UPDATE monthaccount
+    	SET month_duration = CASE monthaccount_id
+
+		<foreach collection="dayMessager" item="list" separator="  ">
+			WHEN #{list.id} THEN #{list.sum}
+		</foreach>
+
+    	END
+
+		WHERE monthaccount_id IN (
+		<foreach collection="dayMessager" item="list" separator=",">
+			#{list.id}
+		</foreach>
+		)
+ 	</update>
+ 	
+</mapper>

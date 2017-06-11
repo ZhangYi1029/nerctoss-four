@@ -1,0 +1,279 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<meta name="keywords" content="jquery,ui,easy,easyui,web">
+<meta name="description" content="easyui">
+<title>账务账号</title>
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_animation.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_plus.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/insdep_theme_default.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/icon.css">
+	
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/libs/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/jquery.insdep-extend.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.json-2.4.js"></script>
+
+
+<style>
+body {
+	margin: 0px
+}
+</style>
+<script src="${rc.contextPath}/js/sys/account.js?_${date.systemTime}"></script>
+<script>
+	/* 查询数据的方法 */
+	function QueryData() {
+	   $("#tt").datagrid("load", {
+	        number:$("#nameQueryInp").textbox('getValue'),
+	        phone:$("#phoneQuery").numberbox('getValue'),
+	        state:$("#stateQuery").textbox('getValue')
+	        
+	    }); 
+	  
+	}
+	
+	/* 清空查询框的方法 */
+	function ClearQuery() {
+		$('#nameQueryInp').textbox('clear');
+		$("#phoneQuery").numberbox('clear');
+		$("#stateQuery").textbox('clear');
+	}
+
+
+	$(function() {
+
+		$('#tt').datagrid({
+			title : '账务',
+			width : 700,
+			height : 'auto',
+			nowrap : false,
+			striped : true,
+			border : true,
+			collapsible : false,//是否可折叠的 
+			fit : true,//自动大小
+			url : "../account/all",
+			method:'GET',
+			//sortOrder: 'desc', //该方法用来设置排列的顺序
+			remoteSort : false,
+			idField : 'id',//数据的id属性是什么
+			singleSelect : false,//是否单选 
+			pagination : true,//分页控件是否显示
+			rownumbers : true,//行号 是否显示
+			toolbar : "#tb",
+			
+		});
+
+		var p = $('#tt').datagrid('getPager');
+		$(p).pagination({
+			pageSize : 10,//每页显示的记录条数，默认为10 
+			pageList : [ 5, 10, 15 ],//可以设置每页记录条数的列表 
+			beforePageText : '第',//页数文本框前显示的汉字 
+			afterPageText : '页    共 {pages} 页',
+			displayMsg : '当前显示 {from} - {to} 条记录   共 {total} 条记录',
+			showRefresh:false
+		});
+
+	});
+	
+	/* $('#add').dialog('open'); */
+	
+	
+	function addlog() {
+		$('#add').dialog('open');
+		
+	}
+	function updatelog() {
+		var row=$('#tt').datagrid('getSelected');
+		if(row!=null){	
+			$('#update').dialog('open');
+			upshow();
+		}else{
+			alert("请选择要修改的行")
+		}
+	}
+	function refresh(){
+		$('#tt').datagrid('reload');
+	}
+	
+</script>
+</head>
+<body>
+
+	<div id="tb" style="padding:5px;height:auto">    
+	    <div style="margin-bottom:5px">    
+	        <a href="#" class="easyui-linkbutton button-success" onclick="addlog()" plain="true">添加</a>    
+	        <a href="#" class="easyui-linkbutton button-danger" plain="true" onclick="del()">删除</a> 
+	        <a href="#" class="easyui-linkbutton button-warning" plain="true" onclick="updatelog()">修改</a>
+	        <a href="#" class="easyui-linkbutton button-primary" onclick="refresh()" plain="true">刷新</a>
+	    </div>    
+	       
+	</div> 
+
+
+
+
+	<div>
+		<div id="ttd" fit="true" border="false">
+			<div id="divLayout" fit="true">
+				<div data-options="region:'north',split:false"
+					style="padding-top: 6px;" border="false">
+
+					<!--信息查询部分-->
+					<fieldset id="tblQuery">
+						<legend>信息查询</legend>
+
+
+						<label style="margin-left: 20px">账号：</label> <input name="name" id="nameQueryInp"
+							class="easyui-textbox"  style="width: 200px; height: 32px">
+						<label style="margin-left: 20px">电话：</label> <input name="phone"
+							class="easyui-numberbox" id="phoneQuery"
+							style="width: 200px; height: 32px"> <label
+							style="margin-left: 20px">状态：</label> <input name="state"
+							class="easyui-textbox" id="stateQuery"
+							style="width: 200px; height: 32px"> <a
+							class="easyui-linkbutton button-info" href="javascript:QueryData()"
+							plain="true">查询</a>
+						<!-- 执行查找方法 -->
+						<a class="easyui-linkbutton button-inverse" href="javascript:ClearQuery()"
+							plain="true">清空</a>
+						<!-- 执行清空查询数据的方法 -->
+					</fieldset>
+
+				</div>
+
+				<div data-options="region:'center',split:false" border="false">
+
+					<div style="height: 506px">
+						<!--显示数据列表部分-->
+						<table id="tt" cellspacing="0" cellpadding="0">
+							<thead>
+								<tr>
+									<th field="ck" checkbox="true"></th>
+									<th field="id" hidden="true"></th>
+									<th field="name" align="center" width="80">名字</th>
+									<th field="idCard" align="center" width="200">身份证号码</th>
+									<th field="genders" align="center" width="80">性别</th>
+									<th field="number" align="center" width="200">账务账号</th>
+									<th field="phone" align="center" width="150">电话号码</th>
+									<th field="address" align="center" width="150">地址</th>
+									<th field="qq" align="center" width="150">QQ</th>
+									<th field="state" align="center" width="80">状态</th>
+		
+								</tr> 
+							</thead>
+						</table>
+						<input type="hidden" id="id">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 增加数据对话框 -->
+	<div id="add" class="easyui-dialog"
+		style="padding: 5px; width: 600px; height: 500px;" title="增加"
+		data-options="closed:true" buttons="#dlg-buttons">
+
+		<label style="margin-left: 20px">姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：</label> <input
+			name="name" class="easyui-textbox"  style="width: 200px; height: 32px" data-options="validType:'nameTx'"
+			id="a1" ></br>
+		</br> <label style="margin-left: 20px">身份证号：</label> <input  
+			class="easyui-textbox" style="width: 200px; height: 32px" id="a2" class="easyui-textbox"
+			data-options="validType:'idCard'"
+			 ><span id="cd"></span></br>
+		</br> <label style="margin-left: 20px">性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别：</label> 
+			<input name="gender1" type="radio" style="width: 50px; height: 32px" value="1" >男
+			<input name="gender1" type="radio" style="width:50px; height:32px" value="0" checked="checked">女</br>
+		</br> <label style="margin-left: 20px">账务账号：</label> <input name="number"
+			class="easyui-textbox" style="width: 200px; height: 32px" id="a3" data-options="validType:'numberTx'"
+			><span id="nu"></span></br>
+		</br> <label style="margin-left: 20px">密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码：</label> <input name="password" type="password"
+			class="easyui-textbox" style="width: 200px; height: 32px" id="a4" data-options="validType:'mimaTx'"
+			onblur="yanmi"><span id="mi"></span></br>
+		</br> <label style="margin-left: 20px">电话号码：</label> <input name="phone"
+			class="easyui-textbox" style="width: 200px; height: 32px" id="a5" data-options="validType:'phoneTx'"
+			><span id="hp"></span></br>
+		</br> <label style="margin-left: 20px">地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;址：</label> <input name="address"
+			class="easyui-textbox" style="width: 200px; height: 32px" id="a6" ></br>
+		</br> <label style="margin-left: 20px">Q&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q：</label> <input name="qq"
+			type="text" class="easyui-textbox" style="width: 200px; height: 32px" data-options="validType:'qqTx'"
+			id="a7" onblur="yanqq"><span id="q"></span></br>
+		</br> <label style="margin-left: 20px">邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;编：</label> <input name="postcode"
+			type="text" class="easyui-textbox" style="width: 200px; height: 32px" data-options="validType:'youbTx'"
+			id="a8" onblur="yanyou"><span id="you"></span></br>
+		</br> <label style="margin-left: 20px">支付方式：</label> <input
+			name="paymethod" class="easyui-textbox"
+			style="width: 200px; height: 32px" id="a9"></br>
+		</br>
+
+		<div id="dlg-buttons">
+			<a class="easyui-linkbutton" iconCls="icon-ok" onclick="save()">确定</a>
+			<a class="easyui-linkbutton" iconCls="icon-cancel"
+				onclick="javascript:$('#add').dialog('close')">取消</a>
+		</div>
+	</div>
+
+
+
+	<!-- 修改账务账号的对话框 -->
+	<div id="update" class="easyui-dialog"
+		style="padding: 5px; width: 600px; height: 500px;" title="修改"
+		data-options="closed:true" buttons="#up-buttons">
+		<label style="margin-left: 20px">姓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;名：</label> <input name="name"
+			readonly="readonly" class="easyui-textbox" style="width: 200px; height: 32px"
+			 id="b1"></br>
+		</br> <label style="margin-left: 20px">身份证号：</label> <input name="idCard"
+			class="easyui-textbox" style="width: 200px; height: 32px"
+			readonly="readonly" id="b2"></br>
+		</br> <label style="margin-left: 20px">性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别：</label> <input name="gender"
+			class="easyui-textbox" style="width: 200px; height: 32px"
+			readonly="readonly" id="b3"></br>
+		</br> <label style="margin-left: 20px">账务账号：</label> <input name="number"
+			class="easyui-textbox" style="width: 200px; height: 32px"
+			readonly="readonly" id="b4"></br>
+		</br> <label style="margin-left: 20px">密&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;码：</label> <input name="password"
+			class="easyui-textbox" style="width: 200px; height: 32px" id="b5" data-options="validType:'mimaTx'"></br>
+		</br> <label style="margin-left: 20px">电话号码：</label> <input name="phone" data-options="validType:'phonexiuTx'"
+			class="easyui-textbox" style="width: 200px; height: 32px" id="b6"><span id="zph"></span></br>
+		</br> <label style="margin-left: 20px">地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;址：</label> <input name="address"
+			class="easyui-textbox" style="width: 200px; height: 32px"
+			readonly="readonly" id="b7"></br>
+		</br> <label style="margin-left: 20px">Q&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Q：</label> <input name="qq"
+			type="text" class="easyui-textbox" style="width: 200px; height: 32px"
+			readonly="readonly" id="b8"></br>
+		</br> <label style="margin-left: 20px">邮&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;编：</label> <input name="postcode"
+			type="text" class="easyui-textbox" style="width: 200px; height: 32px"
+			readonly="readonly" id="b9"></br>
+		</br> <label style="margin-left: 20px">支付方式：</label> <input
+			name="paymethod" class="easyui-textbox"
+			style="width: 200px; height: 32px" readonly="readonly" id="b10"></br>
+		</br>
+		</br> <label style="margin-left: 20px">状&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;态：</label><select id="b11" class="easyui-combobox" name="state" style="width:200px;height: 32px">   
+			    <option value="开通">开通</option>   
+			    <option value="暂停">暂停</option>    
+			</select></br>
+		</br>
+			  
+
+
+		<div id="up-buttons">
+			<a class="easyui-linkbutton" iconCls="icon-ok" onclick="update()">确定</a>
+			<a class="easyui-linkbutton" iconCls="icon-cancel"
+				onclick="javascript:$('#update').dialog('close')">取消</a>
+		</div>
+	</div>
+
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>电信租赁系统</title>
+#parse("sys/header.html")
+<style>
+body {
+	margin: 0px
+}
+</style>
+
+<script>
+	function addTab(title, url) {
+		if ($('#tt2').tabs('exists', title)) {
+			$('#tt2').tabs('select', title);
+		} else {
+			var content = '<iframe scrolling="auto" frameborder="0"  src="'
+					+ url + '" style="width:100%;height:100%;"></iframe>';
+			$('#tt2').tabs('add', {
+				title : title.html(),
+				content : content,
+				closable : true
+			});
+		}
+	}
+</script>
+
+</head>
+
+
+<body class="easyui-layout">
+
+	<div data-options="region:'north',border:false,bodyCls:'theme-header-layout'">
+        	<div class="theme-navigate">
+                <div class="left">
+                    <a href="#" class="easyui-menubutton theme-navigate-user-button" data-options="menu:'.theme-navigate-user-panel'">匿名</a>
+                    <a href="#" class="easyui-menubutton " data-options="menu:'#mm1',hasDownArrow:false">文件<span class="badge color-default">15</span></a> 
+
+                    <div id="mm1" class="theme-navigate-menu-panel">
+                        <div>
+                            <span>导入</span>
+                            <div>
+                                <div>XML 到模板</div>
+                                <div>表格式数据</div>
+                                <div data-options="disabled:true">Word 文档</div>
+                                <div data-options="disabled:true">Excel 文档</div>
+                            </div>
+                        </div>
+                        <div>
+                            <span>导出</span>
+                            <div>
+                                <div>表格</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="theme-navigate-user-panel">
+                       <dl>
+                       		<dd>
+                                <b class="badge-prompt">匿名<i class="badge color-important">10</i></b>
+                                <span>examples@insdep.com</span>
+                                <p>安全等级：<i class="text-success">高</i></p>
+                            </dd>
+                            <dt>
+                            	<a class="theme-navigate-user-modify">修改资料</a>
+                                <a class="theme-navigate-user-logout">注销</a>
+                            </dt>
+                       </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
+	
+	<div id="tt2" class="easyui-tabs"
+		data-options="region:'east',iconCls:'icon-reload',split:true"
+		style="width: 85%;">
+		
+		
+	</div>
+	<div class="easyui-accordion"
+		data-options="region:'west',title:'电信运营系统',split:true"
+		style="width: 15%;">
+
+
+
+		<div title="用户管理系统" style="overflow: auto; padding: 10px;">
+			<ul class="easyui-tree">
+				<li><a onclick="addTab($(this),'http://www.baidu.com/')">账务账号管理</a></li>
+				<li><a onclick="addTab($(this),'/telecomlease_system/html/fenyeShuru.html')">业务账务管理</a></li>
+			</ul>
+		</div>
+
+		<div title="管理员管理系统" style="padding: 10px;">
+			<ul class="easyui-tree">
+				<li><a onclick="addTab($(this),'html/fenye.html')">管理员管理</a></li>
+			</ul>
+		</div>
+
+		
+		<div title="资费管理系统" style="padding: 10px;">
+			<ul class="easyui-tree">
+				<li><a onclick="addTab($(this),'html/fenye.html')">资费管理</a></li>
+			</ul>
+		</div>
+		
+		
+		<div title="账单查询系统" style="padding: 10px;">
+			<ul class="easyui-tree">
+				<li><a onclick="addTab($(this),'html/fenye.html')">账单查询管理</a></li>
+			</ul>
+		</div>
+		
+		
+		<div title="账务查询系统" style="padding: 10px;">
+			<ul class="easyui-tree">
+				<li><a onclick="addTab($(this),'html/fenye.html')">账务查询管理</a></li>
+			</ul>
+		</div>
+		
+		
+		<div title="权限管理系统" style="padding: 10px;">
+			<ul class="easyui-tree">
+				<li><a onclick="addTab($(this),'html/fenye.html')">权限管理</a></li>
+				<li><a onclick="addTab($(this),'html/fenye.html')">角色管理</a></li>
+			</ul>
+		</div>
+		
+		
+		<div title="前台日志系统" style="padding: 10px;">
+			<ul class="easyui-tree">
+				<li><a onclick="addTab($(this),'html/fenye.html')">登陆服务日志</a></li>
+				<li><a onclick="addTab($(this),'html/fenye.html')">操作服务日志</a></li>
+			</ul>
+		</div>
+		
+		
+		<div title="报表查询系统" style="padding: 10px;">
+			<ul class="easyui-tree">
+				<li><a onclick="addTab($(this),'html/fenye.html')">账务账单报表</a></li>
+				<li><a onclick="addTab($(this),'html/fenye.html')">业务账单报表</a></li>
+			</ul>
+		</div>
+		
+		
+		<div title="用户自服务系统" style="padding: 10px;">
+			<ul class="easyui-tree">
+				<li><a onclick="addTab($(this),'html/fenye.html')">用户自服务</a></li>
+			</ul>
+		</div>
+		
+
+	</div>
+	
+	
+	
+
+</body>
+</html>

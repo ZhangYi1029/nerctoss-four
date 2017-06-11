@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="www.netfour.com.account_sys.mapper.AccountMapper">
+	
+	<resultMap type="AccountBean" id="accountMap">
+		<id property="id" column="account_id" javaType="java.lang.Long"/>
+		<result property="name" column="account_name" javaType="java.lang.String"/>
+		<result property="idCard" column="account_idcard" javaType="java.lang.String"/>
+		<result property="gender" column="account_gender" javaType="java.lang.Integer"/>
+		<result property="number" column="account_number" javaType="java.lang.String"/>
+		<result property="password" column="account_password" javaType="java.lang.String"/>
+		<result property="phone" column="account_phone" javaType="java.lang.String"/>
+		<result property="address" column="account_address" javaType="java.lang.String"/>
+		<result property="qq" column="account_qq" javaType="java.lang.String"/>
+		<result property="postcode" column="account_postcode" javaType="java.lang.String"/>
+		<result property="paymethod" column="account_paymethod" javaType="java.lang.String"/>
+		<result property="state" column="account_state" javaType="java.lang.String"/>
+		<collection property="business" javaType="java.util.List" column="id" fetchType="eager" select="getBusinessByAccount"></collection>
+	</resultMap>
+	
+	
+	<select id="queryAllPerms" resultType="String">
+		select m.perms from sys_account_role ur 
+			LEFT JOIN sys_role_menu rm on ur.fk_role_id = rm.role_id 
+			LEFT JOIN sys_menu m on rm.menu_id = m.menu_id 
+		where ur.fk_account_id = #{accountId}
+	</select>
+
+
+	<insert id="saveAccount" useGeneratedKeys="true" keyProperty="account.id">
+		insert into account (account_name,account_idcard,account_gender,account_number,account_password,account_phone,account_address,account_qq,account_postcode,account_paymethod,account_state) values
+		(#{account.name},#{account.idCard},#{account.gender},#{account.number},#{account.password},#{account.phone},#{account.address},#{account.qq},#{account.postcode},#{account.paymethod},#{account.state})
+	</insert>
+
+	<insert id="saveBatchAccount" parameterType="java.util.List">
+		insert into account (account_name,account_idcard,account_gender,account_number,account_password,account_phone,account_address,account_qq,account_postcode,account_paymethod,account_state) values
+		<foreach collection="account" item="ac" separator=",">
+			(#{ac.name},#{ac.idCard},#{ac.gender},#{ac.number},#{ac.password},#{ac.phone},#{ac.address},#{ac.qq},#{ac.postcode},#{ac.paymethod},#{ac.state})
+		</foreach>
+	</insert>
+	
+	<update id="updateAccount">
+	update  account   
+		<set>
+			<if test="account.password !=null">
+				account_password=#{account.password},
+			</if>
+			<if test="account.phone !=null">
+				account_phone=#{account.phone},
+			</if>
+			<if test="account.state !=null">
+				account_state=#{account.state},
+			</if>
+		</set>
+		<where>
+			account_id=#{account.id}
+		</where>
+	</update>
+	
+	<delete id="deleteAccountById">
+		delete from business where fk_accort_id=#{id};
+		delete from account where account_id=#{id}
+	</delete>
+	
+	<select id="findAccountById" resultMap="accountMap">
+		select * from account where account_id=#{id}
+	</select>
+	
+	<select id="getBusinessByAccount" resultType="BusinessBean">
+		select business_id as id,business_number as number,business_password as password,business_serviceIp as serviceIp,business_state as state from business where fk_accort_id =#{id}
+	</select>
+	
+	<select id="countAccountByMapToPager" resultType="int">
+		select count(account_id) from account
+		<include refid="commonSql"></include>
+	</select>
+	
+	<select id="getAccountByMapToPager" resultMap="accountMap">
+		select * from account
+		<include refid="commonSql"></include>
+		limit #{map.index},#{map.pageSize}
+	</select>
+	
+	
+	<sql id="commonSql">
+		<where>
+			<if test="map.number !=null">
+				and account_number like CONCAT(#{map.number},'%')
+			</if>
+			<if test="map.phone !=null">
+				and account_phone like CONCAT(#{map.phone},'%')
+			</if>
+			<if test="map.state !=null">
+				and account_state like CONCAT(#{map.state},'%')
+			</if>
+		</where>
+	</sql>
+	
+	
+	<select id="getAccountIdByNumber" resultMap="accountMap">
+		select account_id from account where account_number =#{number}
+	</select>
+	
+	<select id="getAccountByLikeName" resultMap="accountMap">
+		select account_id from account where account_name  like CONCAT(#{name},'%') 
+	</select>
+	
+	<!-- 判断身份证号码、账户、电话号码是否重复 -->
+	<select id="findRepeatAccount" resultMap="accountMap">
+		select * from account 
+		<where>
+			<if test="account.idCard !=null">
+				account_idcard=#{account.idCard}
+			</if>
+			<if test="account.number !=null">
+				account_number=#{account.number}
+			</if>
+			<if test="account.phone !=null">
+				account_phone=#{account.phone}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findAllAccount" resultMap="accountMap">
+		select * from account where account_state = #{state}
+	</select>
+	
+	<delete id="deleteBatchAccount">
+		delete from account where account_id in
+		<foreach collection="accounts" item="account" separator="," open="(" close=")">
+			#{account.id}
+		</foreach>
+		;
+		delete from business where fk_accort_id in
+		<foreach collection="accounts" item="account" separator="," open="(" close=")">
+			#{account.id}
+		</foreach>	
+	</delete>
+	
+	<select id="getAccountStateByBusinessId" resultMap="accountMap">
+		select * from business left join account on fk_accort_id=account_id where business_id=#{id}
+	</select>
+	
+	<select id="queryByAccountName" resultMap="accountMap">
+		select * from account where account_name = #{accountName}
+	</select>
+	
+</mapper>

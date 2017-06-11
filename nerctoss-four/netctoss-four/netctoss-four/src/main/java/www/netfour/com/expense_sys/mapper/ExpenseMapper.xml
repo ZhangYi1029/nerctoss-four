@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 命名空间 -->
+<mapper namespace="www.netfour.com.expense_sys.mapper.ExpenseMapper">
+<resultMap type="ExpenseBean" id="expense">
+	<id property="id" column="expense_id" javaType="java.lang.Long"/>
+	<result property="name" column="expense_name" javaType="java.lang.String"/>
+	<result property="duration" column="expense_duration" javaType="java.lang.Integer"/>
+	<result property="price" column="expense_price" javaType="java.lang.Double"/>
+	<result property="introduce" column="expense_introduce" javaType="java.lang.String"/>
+	<result property="type" column="expense_type" javaType="java.lang.String"/>
+	<result property="unitPrice" column="expense_unitprice" javaType="java.lang.Double"/>
+	<result property="state" column="expense_state" javaType="java.lang.String"/>
+</resultMap>
+<!-- 添加资费 -->
+<insert id="addExpense" useGeneratedKeys="true" keyProperty="expense_id">
+	insert into expense (expense_name,expense_duration,expense_price,expense_introduce,expense_type,expense_unitprice,expense_state)
+	values(#{name},#{duration},#{price},#{introduce},#{type},#{unitPrice},#{state})
+</insert>
+
+<!-- 删除资费 -->
+<delete id="deleteExpense">
+	delete from expense where expense_id=#{id}
+</delete>
+
+<!-- 修改资费 -->
+<update id="updateExpense">
+	update expense set expense_name=#{name},expense_introduce=#{introduce} where expense_id=#{id}
+</update>
+
+<!-- 分页查询资费 -->
+<select id="selectExpensesToPager" resultMap="expense">
+	select * from expense limit #{pager.index},#{pager.pageSize}
+</select>
+
+
+<!-- 查询条数 -->
+<select id="selectCountOfExpenses" resultType="int">
+	select count(*) from expense;
+</select>
+<!--  根据id获取资费 -->
+<select id="getExpenseBeanById" resultMap="expense">
+	select * from expense where id=#{id}
+</select>
+
+<!-- 修改资费状态（开通或暂停） -->
+<update id="updateExpenseState">
+	update expense set expense_state=#{state} where expense_id=#{id}
+</update>
+
+<select id="fuzzySelect" resultMap="expense">
+	select * from expense as e
+		 		<include refid="sql"></include>
+	 		 		limit #{pager.index},#{pager.pageSize}
+
+</select>
+
+<select id="fuzzyCount" resultType="int">
+	select count(expense_id) from expense as e
+	 		<include refid="sql"></include>
+
+</select>
+
+<sql id="sql">
+			<trim prefix="where" prefixOverrides="and|or">
+ 			<if test="true">
+ 				1=1
+ 			</if>
+ 			<if test="name!=null">
+ 				and e.expense_name like CONCAT(#{name},'%')
+ 			</if>
+ 			<if test="type!= null">
+ 				AND e.expense_type  like CONCAT(#{type},'%')
+ 			</if>
+ 			<if test="state!= null">
+ 				AND e.expense_state  like CONCAT(#{state},'%')
+ 			</if>
+ 		</trim>
+
+</sql>
+
+<delete id="deleteExpenseBatch">
+	delete from expense where expense_id in
+		<foreach collection="delArr" item="ExpenseBean" open="(" close=")" separator=",">
+		#{ExpenseBean.id}
+		</foreach>
+</delete>
+
+<update id="updateDregeExpenseBatch">
+	update expense set expense_state='开通' where expense_id in 
+		<foreach collection="dregeArr" item="ExpenseBean" open="(" close=")" separator=",">
+		#{ExpenseBean.id}
+		</foreach>
+</update>
+
+<select id="selectUsableExpense" resultMap="expense">
+	select * from expense where expense_state = #{state}
+</select>
+<select id="selectExpenseNameIsExist" resultType="int">
+	select count(*) from expense where expense_name=#{name}
+</select>
+
+</mapper>

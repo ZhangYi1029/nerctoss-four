@@ -1,0 +1,315 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="jquery,ui,easy,easyui,web">
+<meta name="description" content="easyui">
+<meta charset="UTF-8">
+<title>账务费用 信息查询</title>
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_animation.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_plus.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/insdep_theme_default.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/icon.css">
+	
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/libs/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/jquery.insdep-extend.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.json-2.4.js"></script>
+
+<style>
+	body {
+		margin: 0px
+	}
+</style>
+
+<script>
+	/* 查询数据的方法 */
+	function QueryData() {
+		
+	    $("#tt").datagrid("load", {
+	        "accountBeannumber":$("#tblQuery").find("input[name='accountBeannumber']").val(),
+	        "accountBeanname":$("#tblQuery").find("input[name='accountBeanname']").val(),
+	        "montht":$("#tblQuery").find("input[name='montht']").val(),
+	        "accountBeanidCard":$("#tblQuery").find("input[name='accountBeanidCard']").val()
+	    });
+	}
+	
+	/* 清空查询框的方法 */
+	function ClearQuery() {
+		$('#accountBeannumber').textbox('clear');
+		$('#accountBeanname').textbox('clear');
+		$('#montht').textbox('clear');
+		$('#accountBeanidCard').textbox('clear');
+		
+	}
+	
+	
+	/* 数据显示 */
+	$(function() {
+
+		$('#tt').datagrid({
+			title : '账务费用信息查询',
+			width : 700,
+			height : 'auto',
+			nowrap : false,
+			striped : true,
+			border : true,
+			collapsible : false,//是否可折叠的 
+			fit : true,//自动大小 
+			url : '/netctoss-four/totalbillController/totalbill',
+			method:'GET',
+			columns:[[
+				{field:'month',title:'月份',width:150,
+					formatter:function(value,row,index){
+						
+						if(row.user){
+							return row.user.name;
+						}else{
+							return value;
+						}
+					}
+				},
+				{field:'number',title:'账务账号',width:150,
+					formatter:function(value,row,index){
+						
+						return row.accountBean.number;
+						
+						/* if(row.user){
+							return row.user.name;
+						}else{
+							return value;
+						} */
+					}
+				},
+				{field:'idCard',title:'身份信息',width:150,
+					formatter:function(value,row,index){
+
+						return row.accountBean.idCard;
+						
+						/* if(row.user){
+							return row.user.name;
+						}else{
+							return value;
+						} */
+					}
+				},
+				{field:'paymethod',title:'支付方式',width:150,
+					formatter:function(value,row,index){
+						
+						
+						if(row.user){
+							return row.user.name;
+						}else{
+							return value;
+						}
+					}
+				},
+				{field:'paystate',title:'支付状态',width:150,
+					formatter:function(value,row,index){
+
+						if(row.user){
+							return row.user.name;
+						}else{
+							return value;
+						}
+					}
+				},
+				{field:'expense',title:'月总费用',width:150,
+					formatter:function(value,row,index){
+
+						if(row.user){
+							return row.user.name;
+						}else{
+							return value;
+						}
+					}
+				},
+				{field:'totalbillId',title:'id',width:150,hidden:true,
+					formatter:function(value,row,index){
+
+						if(row.user){
+							return row.user.name;
+						}else{
+							return value;
+						}
+					}
+				}
+				]],
+			onLoadSuccess:function(data){
+				//console.info(data);
+			},
+			//sortOrder: 'desc', //该方法用来设置排列的顺序
+			remoteSort : false,
+			idField : 'id',//数据的id属性是什么
+			singleSelect : false,//是否单选 
+			pagination : true,//分页控件是否显示
+			rownumbers : true,//行号 是否显示
+			toolbar : "#tb"
+		});
+		
+		
+		
+		/* 双击跳转！！！(并且传输number) */
+		$('#tt').datagrid({
+			onDblClickRow:function(index,field){
+				window.location.href="/netctoss-four/sys/BusinessbillInquire.html?cdnumber="+field.accountBean.number;
+			} ,
+		
+			/* 单击选中，根据Id进行支付 */
+		onClickRow: function(index,field){
+			console.info(field.totalbillId);//获取选中的Id
+			var totalbillId = field.totalbillId;
+
+			$('#zf').click(function(){
+				var totalbillBean = {paystate:"1"};//要修改的
+				var json = $.toJSON(totalbillBean);//将JS对象转换为JSON对象
+				var id = totalbillId;//需要修改的对象ID
+				var uri = "/netctoss-four/totalbillController/"+id;
+				$.ajax({
+					type:"PUT",
+					url:uri,
+					data:json,
+					contentType:"application/json",
+					async:true,
+					success:function(data){
+						alert(data.status);
+						alert(data.msg);
+						
+						javascript:$('#update').dialog('close');
+						refresh();
+					}
+				});
+			});
+			
+			
+			
+		}
+		});
+		
+	
+		
+		/* 分页 */
+		var p = $('#tt').datagrid('getPager');
+		$(p).pagination({
+			pageSize : 10,//每页显示的记录条数，默认为10 
+			pageList : [ 5, 10, 15 ],//可以设置每页记录条数的列表 
+			beforePageText : '第',//页数文本框前显示的汉字 
+			afterPageText : '页    共 {pages} 页',
+			displayMsg : '当前显示 {from} - {to} 条记录   共 {total} 条记录',
+			showRefresh:false
+		});
+
+	});
+	
+
+	/* 选中支付(修改/弹框！) */	
+	function updatelog() {
+		var row=$('#tt').datagrid('getSelected');//getSelected获取第一个选中行的数据
+		
+		if(row!=null){	
+			$('#update').dialog('open');
+
+		}else{
+			alert("请选择要支付的的账务账号月消费")
+		}
+	}
+	
+	
+	
+	/* 刷星 */
+	function refresh(){
+		$('#tt').datagrid('reload');
+	}
+	
+</script>
+
+</head>
+<body>
+
+<div id="tb" style="padding:5px;height:auto">    
+	    <div style="margin-bottom:5px">           
+	        <a href="#" class="easyui-linkbutton button-warning" onclick="updatelog()" plain="true">支付</a>
+	        <a href="#" class="easyui-linkbutton button-primary" onclick="refresh()" plain="true">刷新</a>  
+	    </div>    
+	       
+	</div> 
+
+	<div>
+		<div id="ttd" fit="true" border="false">
+			<div id="divLayout" fit="true">
+				<div data-options="region:'north',split:false" style="padding-top: 6px;" border="false">
+				
+						<!--信息查询部分-->
+						<fieldset id="tblQuery">
+							<legend>信息查询</legend>
+							
+							
+<!-- 							<label style="margin-left: 20px">时间：</label>
+							<input name="accountBean.number" type="text" editable="false" class="easyui-datebox" > -->
+		
+							<label style="margin-left: 20px">账务账号：</label>
+							<input id="accountBeannumber" name="accountBeannumber" class="easyui-textbox" data-options="prompt:'请输入：'" style="width:200px;height:32px">
+							
+							<label style="margin-left: 20px">真实姓名：</label>
+							<input id="accountBeanname" name="accountBeanname" class="easyui-textbox" data-options="prompt:'请输入：'" style="width:200px;height:32px">
+							
+							<label style="margin-left: 20px">月份：</label>
+							<input id="montht" name="montht" class="easyui-textbox" data-options="prompt:'请输入：'" style="width:200px;height:32px">
+							
+							<label style="margin-left: 20px">身份证号：</label>
+							<input id="accountBeanidCard" name="accountBeanidCard" class="easyui-textbox" data-options="prompt:'请输入：'" style="width:200px;height:32px">
+							
+							<a class="easyui-linkbutton button-info" onclick="QueryData()" plain="true">查询</a><!-- 执行查找方法 --> 
+							<a class="easyui-linkbutton button-inverse" onclick="javascript:ClearQuery()" plain="true">清空</a><!-- 执行清空查询数据的方法 -->
+						</fieldset>
+						
+				</div>
+					
+				<div data-options="region:'center',split:false" border="false" >
+					
+					<div style="height:506px">
+						<!--显示数据列表部分-->
+						<table id="tt" cellspacing="0" cellpadding="0">
+							<thead>
+								 <tr>
+									<!-- <th field="ck" checkbox="true"></th>
+									<th field="id">id</th>
+									<th field="year" align="left">年份</th>
+									<th field="yearDuration" align="left">使用时长</th>
+									<th field="rows.businessBean.serviceIp" align="left">用户姓名</th>
+									<th field="accountBean.number" align="left">账务账号</th>
+									<th field="businessBean.number" align="left">业务账号</th>
+									<th field="businessBean.serviceIp" align="left">服务器IP</th> -->
+								</tr> 
+							</thead>
+						</table>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 支付消费 -->
+	<div id="update" class="easyui-dialog"
+		style="padding: 5px; width: 400px; height: 200px;" title="支付账务账号月消费"
+		data-options="closed:true" buttons="#up-buttons">
+		
+			<h3 style="margin-top: 25px">一旦支付就不可退款！！确认支付？</h3>
+	
+		<div id="dlg-buttons">
+			<a class="easyui-linkbutton" iconCls="icon-ok" id="zf">确定</a> 
+			<a class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#update').dialog('close')">取消</a>
+		</div>
+	</div>
+</body>
+</html>

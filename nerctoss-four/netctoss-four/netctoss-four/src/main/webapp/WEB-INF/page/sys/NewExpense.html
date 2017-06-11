@@ -1,0 +1,210 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="jquery,ui,easy,easyui,web">
+<meta name="description" content="easyui">
+<title>资费管理</title>
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_animation.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_plus.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/insdep_theme_default.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/icon.css">
+	
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/libs/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/jquery.insdep-extend.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.json-2.4.js"></script>
+
+<style>
+body {
+	margin: 0px
+}
+
+#introduceArea {
+	margin-top: 20px;
+	margin-left: 70px;
+}
+
+#introduceUpdate {
+	margin-top: 20px;
+	margin-left: 70px;
+}
+
+#introduceLable {
+	position: absolute;
+	top: 260px;
+	left: 5px;
+}
+
+#nameUpdateLab {
+	position: absolute;
+	top: 120px;
+	left: 5px;
+}
+</style>
+
+<script src="${rc.contextPath}/js/sys/NewExpense.js?_${date.systemTime}"></script>
+</head>
+<body>
+
+	<div id="tb" style="padding: 5px; height: auto">
+		<div style="margin-bottom: 5px">
+			<a href="#" class="easyui-linkbutton button-success"
+				onclick="addlog()" plain="true">添加</a> <a href="#"
+				class="easyui-linkbutton button-danger" onclick="del()" plain="true">删除</a>
+			<a href="#" class="easyui-linkbutton button-warning"
+				onclick="updatelog()" plain="true">修改</a> <a href="#"
+				class="easyui-linkbutton button-primary" onclick="refresh()"
+				plain="true">刷新</a> <a href="#"
+				class="easyui-linkbutton button-warning" onclick="drege()"
+				plain="true">开通</a>
+		</div>
+
+	</div>
+
+
+	<div>
+		<div id="ttd" fit="true" border="false">
+			<div id="divLayout" fit="true">
+				<div data-options="region:'north',split:false"
+					style="padding-top: 6px;" border="false">
+
+					<!--信息查询部分-->
+					<fieldset id="tblQuery">
+						<legend>资费查询</legend>
+
+
+						<label style="margin-left: 20px">资费名称：</label> <input
+							id="nameQueryInp" name="name" class="easyui-textbox"
+							data-options="prompt:'请输入：'" style="width: 100px; height: 32px">
+						<label style="margin-left: 20px">资费类型：</label> <input
+							id="typeQueryInp" name="type" class="easyui-textbox"
+							data-options="prompt:'请输入：'" style="width: 100px; height: 32px">
+						<label style="margin-left: 20px">资费状态：</label> <input
+							id="stateQueryInp" name="state" class="easyui-textbox"
+							data-options="prompt:'请输入：'" style="width: 100px; height: 32px">
+						<a class="easyui-linkbutton button-info" onclick="QueryData()"
+							plain="true">查询</a>
+						<!-- 执行查找方法 -->
+						<a class="easyui-linkbutton button-inverse" onclick="ClearQuery()"
+							plain="true">清空</a>
+						<!-- 执行清空查询数据的方法 -->
+					</fieldset>
+
+				</div>
+
+				<div data-options="region:'center',split:false" border="false">
+
+					<div style="height: 506px">
+						<!--显示数据列表部分-->
+						<table id="tt" cellspacing="0" cellpadding="0">
+							<thead>
+								<tr>
+									<th field="ck" checkbox="true"></th>
+									<th field="id">id</th>
+									<th field="name" align="left">资费名称</th>
+									<th field="duration" align="left">基本时长</th>
+									<th field="price" align="left">基本费用</th>
+									<th field="introduce" align="left">资费介绍</th>
+									<th field="type" align="left">资费类型</th>
+									<th field="unitPrice" align="left">单位费用</th>
+									<th field="state" align="left">状态</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="add" class="easyui-dialog"
+		style="padding: 5px; width: 400px; height: 400px;" title="添加资费"
+		data-options="closed:true" buttons="#dlg-buttons">
+		<label style="margin-left: 20px">资费名称</label> <input id="nameInp"
+			name="name" type="text" class="easyui-textbox"
+			data-options="min:0,precision:2"><span id="validateNameSpan"></span><br />
+		<!-- 		 <div style="margin-left: 20px">
+            <input id="nameInp" name="name" class="easyui-textbox" 
+            data-options="buttonText:'资费名称',buttonAlign:'left',prompt:'请输入'" 
+            style="width:95%;height:32px;">
+        </div> -->
+
+		<label style="margin-left: 20px">资费类型</label> <select id="typeSel"
+			name="type" data-options="editable:false" class="easyui-combobox"
+			style="width: 146px;">
+			<option>套餐</option>
+			<option>包月</option>
+			<option>计时</option>
+			
+		</select><br /> <label style="margin-left: 20px">基本时长</label> <input
+			id="durationInp" name="duration" type="text" class="easyui-numberbox"
+			data-options="min:0,precision:0"><br />
+		<!-- <div style="margin-left: 20px">
+            <input id="durationInp" name="duration" class="easyui-textbox" 
+            data-options="buttonText:'基本时长',buttonAlign:'left',prompt:'请输入'" 
+            style="width:95%;height:32px;">
+        </div> -->
+
+		<label style="margin-left: 20px">基本费用</label> <input id="priceInp"
+			name="price" type="text" class="easyui-numberbox"
+			data-options="min:0,precision:2"><br /> <label
+			style="margin-left: 20px">单位费用</label> <input id="unitInp"
+			name="unitprice" type="text" class="easyui-numberbox"
+			data-options="min:0,precision:2"><br /> <label
+			id="introduceLable" style="margin-left: 20px">资费介绍</label><br />
+		<textarea id="introduceArea" name="introduce"
+			class="easyui-validatebox" style="width: 199px; height: 60px;"></textarea>
+
+
+
+		<div id="dlg-buttons">
+			<a class="easyui-linkbutton" iconCls="icon-ok"
+				onclick="javascript:addExpense()">确定</a> <a
+				class="easyui-linkbutton" iconCls="icon-cancel"
+				onclick="javascript:$('#add').dialog('close')">取消</a>
+		</div>
+
+		<div id="confirm-buttons">
+			<a class="easyui-linkbutton" iconCls="icon-ok"
+				onclick="javascript:closeDialog()">确定</a>
+		</div>
+	</div>
+
+
+	<!-- 修改资费 -->
+	<div id="updateDiv" class="easyui-dialog"
+		style="padding: 5px; width: 350px; height: 250px;" title="修改资费"
+		data-options="closed:true" buttons="#updlg-buttons">
+		<label style="margin-left: 20px">资费名称</label> <input
+			id="nameUpdateInp" name="nameUpdate" type="text"
+			class="easyui-textbox" data-options="min:0,precision:0"> <br />
+		<label id="nameUpdateLab" style="margin-left: 20px">资费介绍</label><br />
+		<textarea id="introduceUpdate" name="introduceUpdate"
+			class="easyui-validatebox" style="width: 199px; height: 60px;"></textarea>
+
+		<div id="updlg-buttons">
+			<a class="easyui-linkbutton" iconCls="icon-ok"
+				onclick="javascript:updateExpense()">确定</a> <a
+				class="easyui-linkbutton" iconCls="icon-cancel"
+				onclick="javascript:$('#updateDiv').dialog('close')">取消</a>
+		</div>
+	</div>
+
+	<div id="updateOk" class="easyui-dialog"
+		style="padding: 50px; width: 200px; height: 200px;" title="提示"
+		data-options="closed:true" buttons="#confirm-buttons">
+		<label id="updateOkLab"></label>
+	</div>
+
+</body>
+</html>

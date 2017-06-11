@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 命名空间 -->
+<mapper namespace="www.netfour.com.bill_sys.mapper.ServersMapper">
+<resultMap type="ServersBean" id="serversMap">
+	<id property="id" column="expense_id" javaType="java.lang.Long"/>
+	<result property="expense" column="server_expense" javaType="java.lang.Double"/>
+	<result property="ip" column="server_ip" javaType="java.lang.String"/>
+
+	<result property="logintime" column="server_logintime" javaType="java.util.Date"/>
+	<result property="exittime" column="server_exittime" javaType="java.util.Date"/>
+	
+	<result property="expenseAcount.id" column="expense_id" javaType="java.lang.Long"/>
+	<result property="expenseAcount.name" column="expense_name" javaType="java.lang.String"/>
+	<result property="expenseAcount.duration" column="expense_duration" javaType="java.lang.Integer"/>
+	<result property="expenseAcount.price" column="expense_price" javaType="java.lang.Double"/>
+	<result property="expenseAcount.introduce" column="expense_introduce" javaType="java.lang.String"/>
+	<result property="expenseAcount.type" column="expense_type" javaType="java.lang.String"/>
+	<result property="expenseAcount.unitPrice" column="expense_unitprice" javaType="java.lang.Double"/>
+	<result property="business.id" column="business_id" javaType="java.lang.Long"/>
+	<result property="business.password" column="business_password" javaType="java.lang.String"/>
+	<result property="business.number" column="business_number" javaType="java.lang.String"/>
+	<result property="business.serviceIp" column="business_serviceIp" javaType="java.lang.String"/>
+	<result property="business.state" column="business_state" javaType="java.lang.String"/>
+
+</resultMap>
+	
+
+	<!-- 2.服务器使用情况 -->
+	<select id="serviceIpCount" resultType="int">
+			SELECT count(*)
+		from server as s 
+		LEFT JOIN expense as e ON s.fk_expense_id = e.expense_id 
+		LEFT JOIN business as b on b.business_id = s.fk_business_id
+		<include refid="Sql"></include>
+		</select>
+	
+		
+		<select id="getBusinessByNumber" resultMap="serversMap">
+			SELECT *
+		from server as s 
+		LEFT JOIN expense as e ON s.fk_expense_id = e.expense_id 
+		LEFT JOIN business as b on b.business_id = s.fk_business_id
+		<include refid="Sql"></include>
+		limit #{map.index},#{map.pageSize}
+		</select>
+		
+		<sql id="Sql">
+ 		<trim prefix="where" prefixOverrides="and|or">
+ 			<if test="1==1">
+ 				1 = 1
+ 			</if>
+ 			<if test="map.tznumber != null">
+ 				and business_number = #{map.tznumber}
+ 			</if>
+ 		</trim>
+ 	</sql>
+	
+</mapper>

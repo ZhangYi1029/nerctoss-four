@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace 命名空间 -->
+<mapper namespace="www.netfour.com.expense_sys.mapper.ServerMapper">
+<resultMap type="ServerBean" id="server">
+	<id property="id" column="server_id" javaType="java.lang.Long"/>
+	<result property="expense" column="server_expense" javaType="java.lang.Double"/>
+	<result property="ip" column="server_ip" javaType="java.lang.String"/>
+	<result property="logintime" column="server_logintime" javaType="java.util.Date"/>
+	<result property="exittime" column="server_exittime" javaType="java.util.Date"/>
+	<result property="expenseAcount.id" column="expense_id" javaType="java.lang.Long"/>
+	<result property="expenseAcount.name" column="expense_name" javaType="java.lang.String"/>
+	<result property="expenseAcount.duration" column="expense_duration" javaType="java.lang.Integer"/>
+	<result property="expenseAcount.price" column="expense_price" javaType="java.lang.Double"/>
+	<result property="expenseAcount.introduce" column="expense_introduce" javaType="java.lang.String"/>
+	<result property="expenseAcount.type" column="expense_type" javaType="java.lang.String"/>
+	<result property="expenseAcount.unitPrice" column="expense_unitprice" javaType="java.lang.Double"/>
+	<result property="business.id" column="business_id" javaType="java.lang.Long"/>
+	<result property="business.password" column="business_password" javaType="java.lang.String"/>
+	<result property="business.number" column="business_number" javaType="java.lang.String"/>
+	<result property="business.serviceIp" column="business_serviceIp" javaType="java.lang.String"/>
+	<result property="business.state" column="business_state" javaType="java.lang.String"/>
+
+</resultMap>
+	
+
+	<select id="getServerBeanById" resultMap="server">
+	select * from `server` as s join expense as e on s.fk_expense_id=e.expense_id WHERE s.fk_business_id=#{id}
+	</select>
+
+	<update id="updateFDurationFee">
+	update server set server_expense=#{serverBean.expense} where server_id=#{serverBean.id}
+	</update>
+	
+	<select id="getNeedUpdateId" resultType="java.lang.Long">
+select business_id from business as b join `server`  as s on  s.fk_business_id = b.business_id   join  expense as e on e.expense_id = s.fk_expense_id where s.server_exittime &lt; (SELECT NOW() from DUAL) AND e.expense_type != "包月" AND server_expense is null
+	</select>
+	
+</mapper>

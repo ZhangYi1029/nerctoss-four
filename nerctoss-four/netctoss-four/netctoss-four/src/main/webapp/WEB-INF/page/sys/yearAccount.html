@@ -1,0 +1,309 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="jquery,ui,easy,easyui,web">
+<meta name="description" content="easyui">
+<meta charset="UTF-8">
+<title>日账务信息查询</title>
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_animation.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/easyui_plus.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/insdep_theme_default.css">
+<link rel="stylesheet" type="text/css"
+	href="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/icon.css">
+	
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/libs/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/themes/insdep/jquery.insdep-extend.min.js"></script>
+<script type="text/javascript"
+	src="${rc.contextPath}/statics/plugins/EasyUI-1.5.1-InsdepTheme-1.0.4/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="${rc.contextPath}/statics/libs/jquery.json-2.4.js"></script>
+
+<style>
+	body {
+		margin: 0px
+	}
+</style>
+
+<script>
+
+
+	/* 查询数据的方法 */
+	function QueryData() {
+		
+	    $("#tt").datagrid("load", {
+	        "accountNumber":$("#tblQuery").find("input[name='accountNumber']").val(),
+	        "year":$("#tblQuery").find("input[name='year']").val()
+	    });
+		}
+	
+	
+	
+	/* 清空查询框的方法 */
+	function ClearQuery() {
+		$('#accountNumber').textbox('clear');
+		$('#cc').textbox('clear');
+		QueryData();
+	}
+	
+	
+	
+	
+	
+	$(function() {
+			
+		 $('#cc').combobox({    
+			
+			url : '/netctoss-four/yearaccount/list',
+			method:'GET',
+		    valueField:'year',    
+		    textField:'year'
+		    
+		}); 
+		
+
+		$('#tt').datagrid({
+			title : '年账务信息查询',
+			width : 700,
+			height : 'auto',
+			nowrap : false,
+			striped : true,
+			border : true,
+			collapsible : false,//是否可折叠的 
+			fit : true,//自动大小 
+			 url : '/netctoss-four/yearaccount/year', 
+			method:'GET',
+			pageNumber:1,
+			
+		 	columns:[[
+				{field:'id',title:'id', width:150,hidden:'true',
+					formatter: function(value,row,index){
+						
+						if (row.user){
+							
+							return row.user.name;
+							
+						} else {
+							return value;
+						}
+					}
+				},
+				{field:'year',title:'年份', width:150,
+					formatter: function(value,row,index){
+						
+						if (row.user){
+							
+							return row.user.name;
+							
+						} else {
+							return value;
+						}
+					}
+				},
+				{field:'yearDuration',title:'年总时长', width:150,
+					formatter: function(value,row,index){
+						
+						if (row.user){
+							
+							return row.user.name;
+							
+						} else {
+							return value;
+						}
+					}
+				},
+				{field:'accountBeanName',title:'用户名', width:150,
+					formatter: function(value,row,index){
+						return row.accountBean.name;
+						if (row.user){
+							
+							return row.user.name;
+							
+						} else {
+							return value;
+						}
+					}
+				},
+				{field:'accountBeanNumber',title:'账务账号', width:150,
+					formatter: function(value,row,index){
+						
+						return row.accountBean.number;
+						
+						if (row.user){
+							
+							return row.user.name;
+							
+						} else {
+							return value;
+						}
+					}
+				},
+				{field:'businessBeanNumber',title:'业务账号', width:150,
+					formatter: function(value,row,index){
+						return row.businessBean.number;
+						if (row.user){
+							
+							return row.user.name;
+							
+						} else {
+							return value;
+						}
+					}
+				},
+				{field:'businessBeanServiceIp',title:'服务器IP', width:150,
+					formatter: function(value,row,index){
+						return row.businessBean.serviceIp;
+						if (row.user){
+							
+							return row.user.name;
+							
+						} else {
+							return value;
+						}
+					}
+				}
+			]], 
+			
+			
+			
+
+			//sortOrder: 'desc', //该方法用来设置排列的顺序
+			remoteSort : false,
+			idField : 'id',//数据的id属性是什么
+			singleSelect : false,//是否单选 
+			pagination : true,//分页控件是否显示
+			rownumbers : true,//行号 是否显示
+			toolbar : "#tb",
+		});
+		
+		
+		
+		
+		$('#tt').datagrid({
+			onDblClickRow: function(index,field){
+				 window.location.href ="/netctoss-four/sys/MonthAccount.html?year="+field.year+"&accountBeanNumber="+field.accountBean.number;  
+				/* console.info(field.accountBean.number);
+				console.info(field.year); */
+			} 
+		});
+
+		
+		
+		
+	
+		var p = $('#tt').datagrid('getPager');
+		$(p).pagination({
+			pageSize : 10 ,//每页显示的记录条数，默认为10 
+			pageList : [ 5, 10, 15 ],//可以设置每页记录条数的列表 
+			beforePageText : '第',//页数文本框前显示的汉字 
+			afterPageText : '页  共 {pages} 页',
+			displayMsg : '当前显示 {from} - {to} 条记录   共 {total}条记录',
+		
+			/* showRefresh:false, */
+			
+		});
+	});
+	
+
+	
+	function addlog() {
+		$('#add').dialog('open');
+	}
+	
+</script>
+
+</head>
+<body>
+
+<div id="tb" style="padding:5px;height:auto">    
+	    <div style="margin-bottom:5px">    
+	        <!-- <a href="#" class="easyui-linkbutton button-success" onclick="addlog()" plain="true">添加</a>    
+	        <a href="#" class="easyui-linkbutton button-danger" plain="true">删除</a> 
+	        <a href="#" class="easyui-linkbutton button-warning" plain="true">修改</a>
+	        <a href="#" class="easyui-linkbutton button-primary" plain="true">刷新</a>   -->
+	    </div>    
+	       
+	</div> 
+
+	<div>
+		<div id="ttd" fit="true" border="false">
+			<div id="divLayout" fit="true">
+				<div data-options="region:'north',split:false" style="padding-top: 6px;" border="false">
+				
+						<!--信息查询部分-->
+						<fieldset id="tblQuery">
+							<legend>信息查询</legend>
+							
+							<label style="margin-left: 20px ">年份：</label>
+							<input id="cc" name="year" data-options="prompt:'选择年份：'" editable="false"  class="easyui-textbox" style="width:150px;height:32px" >  
+
+							<label style="margin-left: 20px">账务账号：</label>
+							<input  id="accountNumber" name="accountNumber" class="easyui-textbox"  data-options="prompt:'请输入帐务账号：' " style="width:200px;height:32px">
+							
+							<a class="easyui-linkbutton button-info" onclick="QueryData()" plain="true">查询</a><!-- 执行查找方法 --> 
+							<a class="easyui-linkbutton button-inverse" onclick="ClearQuery()" plain="true" id="ClearQuery">清空</a><!-- 执行清空查询数据的方法 -->
+						
+						</fieldset>
+						
+				</div>
+					
+				<div data-options="region:'center',split:false" border="false" >
+					
+					<div style="height:506px">
+						<!--显示数据列表部分-->
+						<table id="tt" cellspacing="0" cellpadding="0">
+							<thead>
+								 <tr>
+									<!-- <th field="ck" checkbox="true"></th>
+									<th field="id">id</th>
+									<th field="year" align="left">年份</th>
+									<th field="yearDuration" align="left">使用时长</th>
+									<th field="rows.businessBean.serviceIp" align="left">用户姓名</th>
+									<th field="accountBean.number" align="left">账务账号</th>
+									<th field="businessBean.number" align="left">业务账号</th>
+									<th field="businessBean.serviceIp" align="left">服务器IP</th> -->
+								</tr> 
+							</thead>
+						</table>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 增加数据对话框 -->
+	<div id="add" class="easyui-dialog"
+		style="padding: 5px; width: 400px; height: 200px;" title="增加"
+		data-options="closed:true" buttons="#dlg-buttons">
+		
+		<label style="margin-left: 20px">数字：</label>
+		<input name="num" type="text" class="easyui-numberbox" data-options="min:0,precision:2"><br /> 
+			
+		<!-- <label style="margin-left: 20px">时间：</label>
+		<input id="cc" class="easyui-combobox" name="dept"   
+    	data-options="valueField:'id',textField:'text',url:'get_data.php'" />  -->
+		
+		<label style="margin-left: 20px">多选框：</label>
+		<select name="duoxuan" class="easyui-combobox" style="width: 200px;">
+			<option>a</option>
+			<option>b</option>
+			<option>b</option>
+			<option>d</option>
+			<option>e</option>
+		</select>
+		<div id="dlg-buttons">
+			<a class="easyui-linkbutton" iconCls="icon-ok" onclick="javascript:">确定</a> 
+			<a class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#add').dialog('close')">取消</a>
+		</div>
+	</div>
+	
+
+</body>
+</html>

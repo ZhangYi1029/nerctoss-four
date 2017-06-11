@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="www.netfour.com.business_sys.mapper.BusinessMapper">
+	
+	
+	<resultMap type="BusinessBean" id="businessMap">
+		<id property="id" column="business_id" javaType="long"/>
+		<result property="number" column="business_number" javaType="java.lang.String"/>
+		<result property="password" column="business_password" javaType="java.lang.String"/>
+		<result property="serviceIp" column="business_serviceIp" javaType="java.lang.String"/>
+		<result property="state" column="business_state" javaType="java.lang.String"/>
+		
+		<result property="expense.id" column="expense_id" javaType="java.lang.Long"/>
+		<result property="expense.name" column="expense_name" javaType="java.lang.String"/>
+		<result property="account.id" column="account_id" javaType="java.lang.Long"/>
+		<result property="account.number" column="account_number" javaType="java.lang.String"/>
+		
+		<!-- <association property="expense" javaType="ExpenseBean" column="fk_expense_id" fetchType="eager" select="findExpenseByBusinessId"></association>
+		<association property="account" javaType="AccountBean" column="fk_accort_id" fetchType="eager" select="findAccountByBusinessId"></association> -->
+	</resultMap>
+
+	<insert id="saveBusiness" useGeneratedKeys="true" keyProperty="business.id">
+		insert into business (business_password,business_number,business_serviceIp,business_state,fk_expense_id,fk_accort_id) 
+		values (#{business.password},#{business.number},#{business.serviceIp},#{business.state},#{business.expense.id},#{business.account.id})
+	</insert>
+
+	<update id="updateBusiness">
+		update business
+			<set>
+				<if test="business.password !=null">
+					business_password=#{business.password},
+				</if>
+				<if test="business.state !=null">
+					business_state=#{business.state},
+				</if>
+				<if test="business.expense !=null">
+					fk_expense_id=#{business.expense.id}
+				</if>
+			</set>
+			<where>
+				business_id=#{business.id}
+			</where>
+	</update>
+	
+	<delete id="deleteBusinessById">
+		delete from business where business_id=#{id}
+	</delete>
+
+	<select id="countBusinessByMapToPager" resultType="int">
+		select count(business_id) from business
+		<include refid="commonSql"></include>
+	</select>
+
+	<!-- <select id="getBusinessByMapToPager" resultMap="businessMap">
+		select * from business 
+		<include refid="commonSql"></include>
+		limit #{map.index},#{map.pageSize}
+	</select> -->
+	<select id="getBusinessByMapToPager" resultMap="businessMap">
+		select business_id,business_number,business_serviceIp,business_state,expense_id,expense_name,account_id,account_number from business left join expense on fk_expense_id=expense_id left join account on fk_accort_id=account_id 
+		<include refid="commonSql"></include>
+		limit #{map.index},#{map.pageSize}
+	</select>
+	
+	<sql id="commonSql">
+		<where>
+			<if test="map.number !=null">
+				and business_number like CONCAT(#{map.number},'%')
+			</if>
+			<if test="map.state !=null">
+				and business_state like CONCAT(#{map.state},'%')
+			</if>
+		</where>
+	</sql>
+	
+	<select id="getRepeatBusiness" resultMap="businessMap">
+		select * from business where business_number = #{number}
+	</select>
+	
+	<select id="getBusinessById" resultMap="businessMap">
+		select business_id,business_number,business_password,business_serviceIp,business_state,expense_id,expense_name,account_id,account_number from business left join expense on fk_expense_id=expense_id left join account on fk_accort_id=account_id  where business_id =#{id}
+	</select>
+	
+	<select id="findAccountByBusinessId" resultType="ExpenseBean">
+		
+		select expense_name as name,expense_duration as duration,expense_price as price,expense_introduce as introduce,expense_state as state,expense_unitprice as unitPrice  from expense where expense_id =#{id}
+	</select>
+	
+	
+	<select id="findExpenseByBusinessId" resultType="AccountBean">
+		select account_name as name,account_idcard as idCard,account_number as number,account_phone as phone,account_address as address from account where account_id =#{id}
+	</select>
+	
+	<delete id="deleteBatchBusiness">
+		delete from business where business_id in
+		<foreach collection="business" item="bus" separator="," open="(" close=")">
+			#{bus.id}
+		</foreach>
+	</delete>
+	
+	<update id="updateBusinessStateByAccountId">
+		update business
+		<set>
+			business_state='暂停'
+		</set>
+		<where>
+			fk_accort_id=#{id}
+		</where>
+	</update>
+
+</mapper>
